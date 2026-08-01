@@ -210,6 +210,11 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
   /usr/include/linux/v4l2-common.h \
   /usr/include/linux/v4l2-controls.h \
   /usr/include/linux/const.h \
+  /usr/include/x86_64-linux-gnu/sys/mman.h \
+  /usr/include/x86_64-linux-gnu/bits/mman.h \
+  /usr/include/x86_64-linux-gnu/bits/mman-map-flags-generic.h \
+  /usr/include/x86_64-linux-gnu/bits/mman-linux.h \
+  /usr/include/x86_64-linux-gnu/bits/mman-shared.h \
   /usr/include/x86_64-linux-gnu/sys/ioctl.h \
   /usr/include/x86_64-linux-gnu/bits/ioctls.h \
   /usr/include/x86_64-linux-gnu/asm/ioctls.h \
@@ -223,8 +228,19 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
   /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
   /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
-  /usr/include/linux/close_range.h
+  /usr/include/linux/close_range.h \
+  /usr/include/c++/11/vector \
+  /usr/include/c++/11/bits/stl_uninitialized.h \
+  /usr/include/c++/11/bits/stl_vector.h \
+  /usr/include/c++/11/bits/stl_bvector.h \
+  /usr/include/c++/11/bits/vector.tcc
 
+
+/usr/include/c++/11/bits/vector.tcc:
+
+/usr/include/c++/11/bits/stl_bvector.h:
+
+/usr/include/c++/11/bits/stl_uninitialized.h:
 
 /usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
 
@@ -244,7 +260,11 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/x86_64-linux-gnu/sys/ioctl.h:
 
+/usr/include/x86_64-linux-gnu/sys/mman.h:
+
 /usr/include/linux/v4l2-controls.h:
+
+/usr/include/c++/11/vector:
 
 /usr/include/x86_64-linux-gnu/bits/getopt_core.h:
 
@@ -287,6 +307,8 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
 /usr/include/c++/11/stdexcept:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/error_constants.h:
+
+/usr/include/c++/11/bits/stl_vector.h:
 
 /usr/include/c++/11/system_error:
 
@@ -522,6 +544,8 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/c++/11/cctype:
 
+/usr/include/x86_64-linux-gnu/bits/mman-linux.h:
+
 /usr/include/x86_64-linux-gnu/bits/types.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
@@ -582,6 +606,8 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:
 
+/usr/include/x86_64-linux-gnu/bits/mman-map-flags-generic.h:
+
 /usr/include/c++/11/streambuf:
 
 /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
@@ -626,6 +652,8 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
 
 /usr/include/c++/11/bits/localefwd.h:
 
+/usr/include/x86_64-linux-gnu/bits/mman.h:
+
 /usr/include/x86_64-linux-gnu/asm/bitsperlong.h:
 
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
@@ -655,6 +683,8 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
 /usr/include/x86_64-linux-gnu/bits/types/timer_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h:
+
+/usr/include/x86_64-linux-gnu/bits/mman-shared.h:
 
 /usr/include/c++/11/ext/new_allocator.h:
 

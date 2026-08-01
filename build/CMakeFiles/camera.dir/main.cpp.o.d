@@ -165,6 +165,11 @@ CMakeFiles/camera.dir/main.cpp.o: /home/avi/Projects/camera/main.cpp \
  /usr/include/x86_64-linux-gnu/asm/posix_types_64.h \
  /usr/include/asm-generic/posix_types.h /usr/include/linux/v4l2-common.h \
  /usr/include/linux/v4l2-controls.h /usr/include/linux/const.h \
+ /usr/include/x86_64-linux-gnu/sys/mman.h \
+ /usr/include/x86_64-linux-gnu/bits/mman.h \
+ /usr/include/x86_64-linux-gnu/bits/mman-map-flags-generic.h \
+ /usr/include/x86_64-linux-gnu/bits/mman-linux.h \
+ /usr/include/x86_64-linux-gnu/bits/mman-shared.h \
  /usr/include/x86_64-linux-gnu/sys/ioctl.h \
  /usr/include/x86_64-linux-gnu/bits/ioctls.h \
  /usr/include/x86_64-linux-gnu/asm/ioctls.h \
@@ -177,4 +182,8 @@ CMakeFiles/camera.dir/main.cpp.o: /home/avi/Projects/camera/main.cpp \
  /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
  /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
- /usr/include/linux/close_range.h
+ /usr/include/linux/close_range.h /usr/include/c++/11/vector \
+ /usr/include/c++/11/bits/stl_uninitialized.h \
+ /usr/include/c++/11/bits/stl_vector.h \
+ /usr/include/c++/11/bits/stl_bvector.h \
+ /usr/include/c++/11/bits/vector.tcc

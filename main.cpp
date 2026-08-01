@@ -5,8 +5,10 @@
 #include <iostream>
 #include <linux/videodev2.h>
 #include <string>
+#include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <vector>
 
 std::string fourcc_to_string(__u32 pixel_format) {
     std::string result;
@@ -115,6 +117,86 @@ bool set_yuyv_format(int fd) {
     return true;
 }
 
+struct Buffer {
+    void* start = nullptr;
+    size_t length = 0;
+};
+
+void unmap_buffers(std::vector<Buffer>& buffers) {
+    for (Buffer& buffer : buffers) {
+        if (buffer.start != nullptr) {
+            munmap(buffer.start, buffer.length);
+            buffer.start = nullptr;
+        }
+    }
+}
+
+void release_driver_buffers(int fd) {
+    v4l2_requestbuffers request{};
+    request.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    request.memory = V4L2_MEMORY_MMAP;
+    request.count = 0;
+
+    // A count of zero asks the driver to release its capture buffers.
+    if (ioctl(fd, VIDIOC_REQBUFS, &request) == -1) {
+        std::cerr << "Could not release camera buffers: " << std::strerror(errno) << '\n';
+    }
+}
+
+bool setup_mmap_buffers(int fd, std::vector<Buffer>& buffers) {
+    v4l2_requestbuffers request{};
+    request.count = 4;
+    request.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    request.memory = V4L2_MEMORY_MMAP;
+
+    // Ask the driver to allocate four capture buffers that we can map.
+    if (ioctl(fd, VIDIOC_REQBUFS, &request) == -1) {
+        std::cerr << "VIDIOC_REQBUFS failed: " << std::strerror(errno) << '\n';
+        return false;
+    }
+
+    if (request.count == 0) {
+        std::cerr << "The driver did not allocate any capture buffers.\n";
+        return false;
+    }
+
+    std::cout << "\nDriver allocated " << request.count << " capture buffers:\n";
+    buffers.resize(request.count);
+
+    for (unsigned int index = 0; index < request.count; ++index) {
+        v4l2_buffer buffer{};
+        buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        buffer.memory = V4L2_MEMORY_MMAP;
+        buffer.index = index;
+
+        // Ask where this driver buffer is and how large it is.
+        if (ioctl(fd, VIDIOC_QUERYBUF, &buffer) == -1) {
+            std::cerr << "VIDIOC_QUERYBUF failed: " << std::strerror(errno) << '\n';
+            unmap_buffers(buffers);
+            release_driver_buffers(fd);
+            return false;
+        }
+
+        buffers[index].length = buffer.length;
+        buffers[index].start = mmap(nullptr, buffer.length, PROT_READ | PROT_WRITE,
+                                    MAP_SHARED, fd, buffer.m.offset);
+
+        if (buffers[index].start == MAP_FAILED) {
+            buffers[index].start = nullptr;
+            std::cerr << "mmap failed: " << std::strerror(errno) << '\n';
+            unmap_buffers(buffers);
+            release_driver_buffers(fd);
+            return false;
+        }
+
+        std::cout << "  Buffer " << index
+                  << ": offset " << buffer.m.offset
+                  << ", length " << buffer.length << " bytes\n";
+    }
+
+    return true;
+}
+
 int main() {
     const char* device = "/dev/video0";
 
@@ -165,6 +247,16 @@ int main() {
 
     // Ask the driver which pixel formats and image sizes it can provide.
     print_supported_formats(fd);
+
+    std::vector<Buffer> buffers;
+    if (!setup_mmap_buffers(fd, buffers)) {
+        close(fd);
+        return 1;
+    }
+
+    // There is no streaming in this step, so we can release the buffers now.
+    unmap_buffers(buffers);
+    release_driver_buffers(fd);
 
     close(fd);
     std::cout << "Camera closed.\n";
