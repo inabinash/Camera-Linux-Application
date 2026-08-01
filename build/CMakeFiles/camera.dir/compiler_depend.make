@@ -210,9 +210,6 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
   /usr/include/linux/v4l2-common.h \
   /usr/include/linux/v4l2-controls.h \
   /usr/include/linux/const.h \
-  /usr/include/poll.h \
-  /usr/include/x86_64-linux-gnu/sys/poll.h \
-  /usr/include/x86_64-linux-gnu/bits/poll.h \
   /usr/include/x86_64-linux-gnu/sys/mman.h \
   /usr/include/x86_64-linux-gnu/bits/mman.h \
   /usr/include/x86_64-linux-gnu/bits/mman-map-flags-generic.h \
@@ -264,8 +261,6 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
 /usr/include/x86_64-linux-gnu/sys/ioctl.h:
 
 /usr/include/x86_64-linux-gnu/sys/mman.h:
-
-/usr/include/x86_64-linux-gnu/bits/poll.h:
 
 /usr/include/linux/v4l2-controls.h:
 
@@ -438,8 +433,6 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
 /usr/include/x86_64-linux-gnu/bits/fcntl-linux.h:
 
 /usr/include/x86_64-linux-gnu/bits/timex.h:
-
-/usr/include/poll.h:
 
 /usr/include/features-time64.h:
 
@@ -692,8 +685,6 @@ CMakeFiles/camera.dir/main.cpp.o: ../main.cpp \
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h:
 
 /usr/include/x86_64-linux-gnu/bits/mman-shared.h:
-
-/usr/include/x86_64-linux-gnu/sys/poll.h:
 
 /usr/include/c++/11/ext/new_allocator.h:
 

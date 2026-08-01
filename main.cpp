@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <iostream>
 #include <linux/videodev2.h>
+#include <poll.h>
 #include <string>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
@@ -227,6 +228,52 @@ bool start_streaming(int fd) {
     return true;
 }
 
+bool dequeue_one_frame(int fd, v4l2_buffer& buffer) {
+    pollfd poll_fd{};
+    poll_fd.fd = fd;
+    poll_fd.events = POLLIN;
+
+    // The device was opened with O_NONBLOCK. Wait until a filled buffer is
+    // ready instead of repeatedly calling VIDIOC_DQBUF too early.
+    const int poll_result = poll(&poll_fd, 1, 2000);
+    if (poll_result == -1) {
+        std::cerr << "poll failed: " << std::strerror(errno) << '\n';
+        return false;
+    }
+
+    if (poll_result == 0) {
+        std::cerr << "Timed out waiting for a camera frame.\n";
+        return false;
+    }
+
+    buffer = {};
+    buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buffer.memory = V4L2_MEMORY_MMAP;
+
+    // Take one filled buffer back from the driver.
+    if (ioctl(fd, VIDIOC_DQBUF, &buffer) == -1) {
+        std::cerr << "VIDIOC_DQBUF failed: " << std::strerror(errno) << '\n';
+        return false;
+    }
+
+    std::cout << "Captured one frame:\n";
+    std::cout << "  Buffer index: " << buffer.index << '\n';
+    std::cout << "  Bytes used: " << buffer.bytesused << '\n';
+    std::cout << "  Sequence: " << buffer.sequence << '\n';
+    return true;
+}
+
+bool requeue_buffer(int fd, v4l2_buffer& buffer) {
+    // Return the buffer to the driver so it can be used for another frame.
+    if (ioctl(fd, VIDIOC_QBUF, &buffer) == -1) {
+        std::cerr << "VIDIOC_QBUF failed while re-queueing: "
+                  << std::strerror(errno) << '\n';
+        return false;
+    }
+
+    return true;
+}
+
 void stop_streaming(int fd) {
     v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
@@ -310,7 +357,23 @@ int main() {
         return 1;
     }
 
-    // Later steps will dequeue a filled frame while streaming is active.
+    v4l2_buffer captured_buffer{};
+    if (!dequeue_one_frame(fd, captured_buffer)) {
+        stop_streaming(fd);
+        unmap_buffers(buffers);
+        release_driver_buffers(fd);
+        close(fd);
+        return 1;
+    }
+
+    if (!requeue_buffer(fd, captured_buffer)) {
+        stop_streaming(fd);
+        unmap_buffers(buffers);
+        release_driver_buffers(fd);
+        close(fd);
+        return 1;
+    }
+
     stop_streaming(fd);
     unmap_buffers(buffers);
     release_driver_buffers(fd);
