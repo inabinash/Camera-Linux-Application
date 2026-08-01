@@ -197,6 +197,48 @@ bool setup_mmap_buffers(int fd, std::vector<Buffer>& buffers) {
     return true;
 }
 
+bool queue_all_buffers(int fd, const std::vector<Buffer>& buffers) {
+    for (unsigned int index = 0; index < buffers.size(); ++index) {
+        v4l2_buffer buffer{};
+        buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        buffer.memory = V4L2_MEMORY_MMAP;
+        buffer.index = index;
+
+        // Give this empty buffer to the driver so it can fill it with a frame.
+        if (ioctl(fd, VIDIOC_QBUF, &buffer) == -1) {
+            std::cerr << "VIDIOC_QBUF failed: " << std::strerror(errno) << '\n';
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool start_streaming(int fd) {
+    v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    // Tell the driver that queued buffers may now receive camera frames.
+    if (ioctl(fd, VIDIOC_STREAMON, &type) == -1) {
+        std::cerr << "VIDIOC_STREAMON failed: " << std::strerror(errno) << '\n';
+        return false;
+    }
+
+    std::cout << "Streaming started.\n";
+    return true;
+}
+
+void stop_streaming(int fd) {
+    v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    // Stop capture before unmapping or releasing the buffers.
+    if (ioctl(fd, VIDIOC_STREAMOFF, &type) == -1) {
+        std::cerr << "VIDIOC_STREAMOFF failed: " << std::strerror(errno) << '\n';
+        return;
+    }
+
+    std::cout << "Streaming stopped.\n";
+}
+
 int main() {
     const char* device = "/dev/video0";
 
@@ -254,7 +296,22 @@ int main() {
         return 1;
     }
 
-    // There is no streaming in this step, so we can release the buffers now.
+    if (!queue_all_buffers(fd, buffers)) {
+        unmap_buffers(buffers);
+        release_driver_buffers(fd);
+        close(fd);
+        return 1;
+    }
+
+    if (!start_streaming(fd)) {
+        unmap_buffers(buffers);
+        release_driver_buffers(fd);
+        close(fd);
+        return 1;
+    }
+
+    // Later steps will dequeue a filled frame while streaming is active.
+    stop_streaming(fd);
     unmap_buffers(buffers);
     release_driver_buffers(fd);
 
