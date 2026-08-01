@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/camera.dir/main.cpp.o -o camera 
+/usr/bin/c++ CMakeFiles/camera.dir/main.cpp.o -o camera  /usr/lib/x86_64-linux-gnu/libopencv_highgui.so.4.5.4d /usr/lib/x86_64-linux-gnu/libopencv_videoio.so.4.5.4d /usr/lib/x86_64-linux-gnu/libopencv_imgcodecs.so.4.5.4d /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.5.4d /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.5.4d 

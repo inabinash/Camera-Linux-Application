@@ -4,6 +4,8 @@
 #include <fcntl.h>
 #include <iostream>
 #include <linux/videodev2.h>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <poll.h>
 #include <string>
 #include <sys/mman.h>
@@ -93,7 +95,7 @@ void print_supported_formats(int fd) {
     }
 }
 
-bool set_yuyv_format(int fd) {
+bool set_yuyv_format(int fd, v4l2_pix_format& selected_pixels) {
     v4l2_format format{};
     format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     format.fmt.pix.width = 640;
@@ -115,6 +117,12 @@ bool set_yuyv_format(int fd) {
     std::cout << "  Bytes per line: " << pixels.bytesperline << '\n';
     std::cout << "  Image size: " << pixels.sizeimage << " bytes\n";
 
+    if (pixels.pixelformat != V4L2_PIX_FMT_YUYV) {
+        std::cerr << "The driver did not select YUYV.\n";
+        return false;
+    }
+
+    selected_pixels = pixels;
     return true;
 }
 
@@ -274,6 +282,30 @@ bool requeue_buffer(int fd, v4l2_buffer& buffer) {
     return true;
 }
 
+bool show_one_frame(const std::vector<Buffer>& buffers,
+                    const v4l2_buffer& captured_buffer,
+                    const v4l2_pix_format& pixels) {
+    if (captured_buffer.index >= buffers.size()) {
+        std::cerr << "Driver returned an invalid buffer index.\n";
+        return false;
+    }
+
+    // This Mat points directly at the mapped YUYV frame from V4L2.
+    cv::Mat yuyv(pixels.height, pixels.width, CV_8UC2,
+                 buffers[captured_buffer.index].start, pixels.bytesperline);
+    cv::Mat bgr;
+
+    // OpenCV needs BGR pixels to display the YUYV frame.
+    cv::cvtColor(yuyv, bgr, cv::COLOR_YUV2BGR_YUY2);
+
+    cv::namedWindow("Camera", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Camera", bgr);
+    std::cout << "Showing one frame. Press any key in the window to close it.\n";
+    cv::waitKey(0);
+    cv::destroyWindow("Camera");
+    return true;
+}
+
 void stop_streaming(int fd) {
     v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
@@ -329,7 +361,8 @@ int main() {
     std::cout << "Video capture: supported\n";
     std::cout << "Streaming I/O: supported\n";
 
-    if (!set_yuyv_format(fd)) {
+    v4l2_pix_format selected_pixels{};
+    if (!set_yuyv_format(fd, selected_pixels)) {
         close(fd);
         return 1;
     }
@@ -359,6 +392,14 @@ int main() {
 
     v4l2_buffer captured_buffer{};
     if (!dequeue_one_frame(fd, captured_buffer)) {
+        stop_streaming(fd);
+        unmap_buffers(buffers);
+        release_driver_buffers(fd);
+        close(fd);
+        return 1;
+    }
+
+    if (!show_one_frame(buffers, captured_buffer, selected_pixels)) {
         stop_streaming(fd);
         unmap_buffers(buffers);
         release_driver_buffers(fd);

@@ -92,6 +92,11 @@ camera_EXTERNAL_OBJECTS =
 
 camera: CMakeFiles/camera.dir/main.cpp.o
 camera: CMakeFiles/camera.dir/build.make
+camera: /usr/lib/x86_64-linux-gnu/libopencv_highgui.so.4.5.4d
+camera: /usr/lib/x86_64-linux-gnu/libopencv_videoio.so.4.5.4d
+camera: /usr/lib/x86_64-linux-gnu/libopencv_imgcodecs.so.4.5.4d
+camera: /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.5.4d
+camera: /usr/lib/x86_64-linux-gnu/libopencv_core.so.4.5.4d
 camera: CMakeFiles/camera.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/avi/Projects/camera/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable camera"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/camera.dir/link.txt --verbose=$(VERBOSE)
